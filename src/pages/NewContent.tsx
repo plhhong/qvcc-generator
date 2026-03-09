@@ -133,7 +133,7 @@ export default function NewContent() {
       if (error) throw new Error(error.message || 'Scrape failed');
       if (data?.error) throw new Error(data.error);
 
-      toast({ title: 'Page scraped!', description: 'Analyzing your content...' });
+      toast({ title: 'Website crawled!', description: 'Analyzing all page content...' });
       navigate(`/analyze/${source!.id}`);
     } catch (err: unknown) {
       // Clean up the orphaned source record if scrape failed
@@ -277,8 +277,8 @@ export default function NewContent() {
                 <Globe className="h-6 w-6 text-success" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Scrape from Website</h3>
-                <p className="mt-1 text-sm text-muted-foreground">We'll extract the main article content from any webpage via Firecrawl.</p>
+                <h3 className="font-semibold text-foreground">Crawl Website</h3>
+                <p className="mt-1 text-sm text-muted-foreground">We'll crawl all pages of the website (up to 50 pages) and combine all content for analysis.</p>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Website URL *</Label>
@@ -294,7 +294,7 @@ export default function NewContent() {
                 disabled={loading || !webUrl.trim()}
                 className="w-full bg-gradient-primary hover:opacity-90 transition-opacity glow-primary"
               >
-                {loading ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Scraping page...</>) : (<>Scrape Content <ArrowRight className="ml-2 h-4 w-4" /></>)}
+                {loading ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Crawling all pages...</>) : (<>Crawl All Pages <ArrowRight className="ml-2 h-4 w-4" /></>)}
               </Button>
             </div>
           </TabsContent>
