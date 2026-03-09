@@ -44,6 +44,7 @@ export default function GeneratePage() {
   const [generatedPosts, setGeneratedPosts] = useState<Record<string, { text: string; saved?: GeneratedPost }>>({});
   const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
   const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
+  const [signalsExpanded, setSignalsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
