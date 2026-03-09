@@ -10,10 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import {
   Loader2, Sparkles, Copy, Check, Linkedin, Twitter,
   BookOpen, Video, Mail, ChevronDown, ChevronUp, Wand2,
-  Tag, Quote, Lightbulb, Users, Mic2, ChevronRight,
+  Tag, Quote, Lightbulb, Users, Mic2, ChevronRight, Pencil,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ContentSource, ContentSignal, BrandVoiceProfile, GeneratedPost } from '@/integrations/supabase/helpers';
+import { EditSourceDialog } from '@/components/EditSourceDialog';
 
 const PLATFORMS = [
   { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, color: 'text-platform-linkedin', bg: 'bg-platform-linkedin/10', border: 'border-platform-linkedin/30' },
@@ -46,6 +47,7 @@ export default function GeneratePage() {
   const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
   const [signalsExpanded, setSignalsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -177,17 +179,42 @@ export default function GeneratePage() {
             <h1 className="text-2xl font-bold text-foreground">Generate Content</h1>
             <p className="mt-1 text-sm text-muted-foreground truncate max-w-lg">{source?.title}</p>
           </div>
-          {signals && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/analyze/${id}`)}
-              className="border-border text-xs gap-1.5 shrink-0"
-            >
-              View Analysis <ChevronRight className="h-3 w-3" />
-            </Button>
-          )}
+          <div className="flex gap-2 shrink-0">
+            {source && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditOpen(true)}
+                className="border-border text-xs gap-1.5"
+              >
+                <Pencil className="h-3 w-3" /> Edit Source
+              </Button>
+            )}
+            {signals && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/analyze/${id}`)}
+                className="border-border text-xs gap-1.5"
+              >
+                View Analysis <ChevronRight className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
         </div>
+
+        {source && (
+          <EditSourceDialog
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            source={source}
+            onReprocessed={(updated) => {
+              setSource(updated);
+              setSignals(null);
+              navigate(`/analyze/${id}`);
+            }}
+          />
+        )}
 
         {/* Analysis signals summary */}
         {signals && (

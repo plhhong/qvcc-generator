@@ -9,10 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import {
   Loader2, Sparkles, ArrowRight, X, Plus, Quote, Lightbulb, Tag, Users, Mic2,
-  RefreshCw,
+  RefreshCw, Pencil,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ContentSource, ContentSignal } from '@/integrations/supabase/helpers';
+import { EditSourceDialog } from '@/components/EditSourceDialog';
 
 export default function AnalyzePage() {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,7 @@ export default function AnalyzePage() {
   const [newTheme, setNewTheme] = useState('');
   const [newQuote, setNewQuote] = useState('');
   const [newInsight, setNewInsight] = useState('');
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -161,17 +163,43 @@ export default function AnalyzePage() {
             <h1 className="text-2xl font-bold text-foreground">Content Analysis</h1>
             <p className="mt-1 text-sm text-muted-foreground truncate max-w-md">{source?.title}</p>
           </div>
-          {!analyzing && signals && (
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => runAnalysis()} className="border-border">
-                <RefreshCw className="mr-2 h-4 w-4" /> Re-analyze
+          <div className="flex gap-2">
+            {source && (
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="border-border">
+                <Pencil className="mr-2 h-4 w-4" /> Edit Source
               </Button>
-              <Button onClick={saveAndProceed} className="bg-gradient-primary hover:opacity-90 glow-primary">
-                Generate Content <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          )}
+            )}
+            {!analyzing && signals && (
+              <>
+                <Button variant="outline" onClick={() => runAnalysis()} className="border-border">
+                  <RefreshCw className="mr-2 h-4 w-4" /> Re-analyze
+                </Button>
+                <Button onClick={saveAndProceed} className="bg-gradient-primary hover:opacity-90 glow-primary">
+                  Generate Content <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
+
+        {source && (
+          <EditSourceDialog
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            source={source}
+            onReprocessed={(updated) => {
+              setSource(updated);
+              setSignals(null);
+              setThemes([]);
+              setQuotes([]);
+              setInsights([]);
+              setAudienceType('');
+              setTone('');
+              setSummary('');
+              runAnalysis(updated);
+            }}
+          />
+        )}
 
         {analyzing ? (
           <div className="rounded-xl border border-border bg-card p-12 text-center">
