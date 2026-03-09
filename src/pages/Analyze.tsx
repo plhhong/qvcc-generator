@@ -36,6 +36,7 @@ export default function AnalyzePage() {
   const [newTheme, setNewTheme] = useState('');
   const [newQuote, setNewQuote] = useState('');
   const [newInsight, setNewInsight] = useState('');
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
