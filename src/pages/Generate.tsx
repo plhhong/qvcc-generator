@@ -10,10 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import {
   Loader2, Sparkles, Copy, Check, Linkedin, Twitter,
   BookOpen, Video, Mail, ChevronDown, ChevronUp, Wand2,
-  Tag, Quote, Lightbulb, Users, Mic2, ChevronRight,
+  Tag, Quote, Lightbulb, Users, Mic2, ChevronRight, Pencil,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ContentSource, ContentSignal, BrandVoiceProfile, GeneratedPost } from '@/integrations/supabase/helpers';
+import { EditSourceDialog } from '@/components/EditSourceDialog';
 
 const PLATFORMS = [
   { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, color: 'text-platform-linkedin', bg: 'bg-platform-linkedin/10', border: 'border-platform-linkedin/30' },

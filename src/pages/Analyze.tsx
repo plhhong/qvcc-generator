@@ -9,10 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import {
   Loader2, Sparkles, ArrowRight, X, Plus, Quote, Lightbulb, Tag, Users, Mic2,
-  RefreshCw,
+  RefreshCw, Pencil,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ContentSource, ContentSignal } from '@/integrations/supabase/helpers';
+import { EditSourceDialog } from '@/components/EditSourceDialog';
 
 export default function AnalyzePage() {
   const { id } = useParams<{ id: string }>();
