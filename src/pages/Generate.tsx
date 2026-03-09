@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import {
-  Loader2, Sparkles, ArrowRight, Copy, RefreshCw, Check, Linkedin, Twitter,
+  Loader2, Sparkles, Copy, Check, Linkedin, Twitter,
   BookOpen, Video, Mail, ChevronDown, ChevronUp, Wand2,
+  Tag, Quote, Lightbulb, Users, Mic2, ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ContentSource, ContentSignal, BrandVoiceProfile, GeneratedPost } from '@/integrations/supabase/helpers';
