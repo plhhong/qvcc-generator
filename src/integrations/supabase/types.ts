@@ -14,7 +14,247 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      brand_voice_profiles: {
+        Row: {
+          audience: string | null
+          content_goals: string | null
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          style_notes: string | null
+          tone: string
+          updated_at: string
+          user_id: string
+          vocabulary: string[] | null
+        }
+        Insert: {
+          audience?: string | null
+          content_goals?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          style_notes?: string | null
+          tone?: string
+          updated_at?: string
+          user_id: string
+          vocabulary?: string[] | null
+        }
+        Update: {
+          audience?: string | null
+          content_goals?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          style_notes?: string | null
+          tone?: string
+          updated_at?: string
+          user_id?: string
+          vocabulary?: string[] | null
+        }
+        Relationships: []
+      }
+      content_signals: {
+        Row: {
+          audience_type: string | null
+          content_id: string
+          created_at: string
+          id: string
+          key_insights: string[] | null
+          key_quotes: string[] | null
+          summary: string | null
+          themes: string[] | null
+          tone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audience_type?: string | null
+          content_id: string
+          created_at?: string
+          id?: string
+          key_insights?: string[] | null
+          key_quotes?: string[] | null
+          summary?: string | null
+          themes?: string[] | null
+          tone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audience_type?: string | null
+          content_id?: string
+          created_at?: string
+          id?: string
+          key_insights?: string[] | null
+          key_quotes?: string[] | null
+          summary?: string | null
+          themes?: string[] | null
+          tone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_signals_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_sources: {
+        Row: {
+          created_at: string
+          file_path: string | null
+          id: string
+          raw_text: string | null
+          source_type: string
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          word_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          raw_text?: string | null
+          source_type: string
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+          word_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          raw_text?: string | null
+          source_type?: string
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          word_count?: number | null
+        }
+        Relationships: []
+      }
+      generated_posts: {
+        Row: {
+          brand_voice_id: string | null
+          character_count: number | null
+          content_id: string
+          created_at: string
+          generated_text: string
+          id: string
+          is_favorite: boolean
+          platform: string
+          prompt_used: string | null
+          tags: string[] | null
+          tone: string | null
+          updated_at: string
+          user_id: string
+          version: number
+          word_count: number | null
+        }
+        Insert: {
+          brand_voice_id?: string | null
+          character_count?: number | null
+          content_id: string
+          created_at?: string
+          generated_text: string
+          id?: string
+          is_favorite?: boolean
+          platform: string
+          prompt_used?: string | null
+          tags?: string[] | null
+          tone?: string | null
+          updated_at?: string
+          user_id: string
+          version?: number
+          word_count?: number | null
+        }
+        Update: {
+          brand_voice_id?: string | null
+          character_count?: number | null
+          content_id?: string
+          created_at?: string
+          generated_text?: string
+          id?: string
+          is_favorite?: boolean
+          platform?: string
+          prompt_used?: string | null
+          tags?: string[] | null
+          tone?: string | null
+          updated_at?: string
+          user_id?: string
+          version?: number
+          word_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_posts_brand_voice_id_fkey"
+            columns: ["brand_voice_id"]
+            isOneToOne: false
+            referencedRelation: "brand_voice_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_posts_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_variants: {
+        Row: {
+          created_at: string
+          generated_text: string
+          id: string
+          post_id: string
+          tone: string | null
+          user_id: string
+          variant_label: string
+        }
+        Insert: {
+          created_at?: string
+          generated_text: string
+          id?: string
+          post_id: string
+          tone?: string | null
+          user_id: string
+          variant_label: string
+        }
+        Update: {
+          created_at?: string
+          generated_text?: string
+          id?: string
+          post_id?: string
+          tone?: string | null
+          user_id?: string
+          variant_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_variants_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "generated_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
