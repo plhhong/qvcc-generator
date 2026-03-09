@@ -21,7 +21,8 @@ Deno.serve(async (req) => {
       formattedUrl = `https://${formattedUrl}`;
     }
 
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    // Start a crawl job to get all pages
+    const crawlResponse = await fetch('https://api.firecrawl.dev/v1/crawl', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${FIRECRAWL_API_KEY}`,
@@ -29,23 +30,87 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         url: formattedUrl,
-        formats: ['markdown'],
-        onlyMainContent: true,
+        limit: 50,
+        maxDepth: 3,
+        scrapeOptions: {
+          formats: ['markdown'],
+          onlyMainContent: true,
+        },
       }),
     });
 
-    const data = await response.json();
+    const crawlData = await crawlResponse.json();
 
-    if (!response.ok) {
-      throw new Error(data.error || `Firecrawl error: ${response.status}`);
+    if (!crawlResponse.ok) {
+      throw new Error(crawlData.error || `Firecrawl crawl error: ${crawlResponse.status}`);
     }
 
-    const markdown = data.data?.markdown || data.markdown || '';
-    const title = data.data?.metadata?.title || data.metadata?.title || url;
+    const crawlId = crawlData.id;
+    if (!crawlId) throw new Error('No crawl job ID returned');
 
-    if (!markdown) throw new Error('No content could be extracted from this URL');
+    // Poll for crawl completion (max 60 seconds)
+    let combinedMarkdown = '';
+    let title = url;
+    let attempts = 0;
+    const maxAttempts = 30;
 
-    const wordCount = markdown.trim().split(/\s+/).length;
+    while (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      attempts++;
+
+      const statusResponse = await fetch(`https://api.firecrawl.dev/v1/crawl/${crawlId}`, {
+        headers: { Authorization: `Bearer ${FIRECRAWL_API_KEY}` },
+      });
+
+      const statusData = await statusResponse.json();
+
+      if (statusData.status === 'completed' || statusData.status === 'failed') {
+        if (statusData.status === 'failed') {
+          throw new Error('Crawl job failed');
+        }
+
+        const pages = statusData.data || [];
+        if (pages.length === 0) throw new Error('No pages could be crawled from this URL');
+
+        // Get title from first page metadata
+        title = pages[0]?.metadata?.title || url;
+
+        // Combine all pages with separators
+        const pageContents = pages
+          .filter((p: { markdown?: string; metadata?: { sourceURL?: string } }) => p.markdown && p.markdown.trim())
+          .map((p: { markdown: string; metadata?: { sourceURL?: string; title?: string } }) => {
+            const pageTitle = p.metadata?.title || p.metadata?.sourceURL || '';
+            const pageUrl = p.metadata?.sourceURL || '';
+            return `## ${pageTitle}\n*Source: ${pageUrl}*\n\n${p.markdown}`;
+          });
+
+        if (pageContents.length === 0) throw new Error('No content extracted from pages');
+
+        combinedMarkdown = pageContents.join('\n\n---\n\n');
+        break;
+      }
+
+      // If still crawling, use partial results if available after 20 attempts
+      if (attempts >= 20 && statusData.data && statusData.data.length > 0) {
+        const pages = statusData.data;
+        title = pages[0]?.metadata?.title || url;
+        const pageContents = pages
+          .filter((p: { markdown?: string }) => p.markdown && p.markdown.trim())
+          .map((p: { markdown: string; metadata?: { sourceURL?: string; title?: string } }) => {
+            const pageTitle = p.metadata?.title || p.metadata?.sourceURL || '';
+            const pageUrl = p.metadata?.sourceURL || '';
+            return `## ${pageTitle}\n*Source: ${pageUrl}*\n\n${p.markdown}`;
+          });
+        if (pageContents.length > 0) {
+          combinedMarkdown = pageContents.join('\n\n---\n\n');
+          break;
+        }
+      }
+    }
+
+    if (!combinedMarkdown) throw new Error('Timed out waiting for crawl to complete');
+
+    const wordCount = combinedMarkdown.trim().split(/\s+/).length;
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -54,7 +119,7 @@ Deno.serve(async (req) => {
 
     await supabase.from('content_sources').update({
       title: title.slice(0, 200),
-      raw_text: markdown,
+      raw_text: combinedMarkdown,
       word_count: wordCount,
       status: 'draft',
     }).eq('id', contentId);
