@@ -277,8 +277,8 @@ export default function NewContent() {
                 <Globe className="h-6 w-6 text-success" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Scrape from Website</h3>
-                <p className="mt-1 text-sm text-muted-foreground">We'll extract the main article content from any webpage via Firecrawl.</p>
+                <h3 className="font-semibold text-foreground">Crawl Website</h3>
+                <p className="mt-1 text-sm text-muted-foreground">We'll crawl all pages of the website (up to 50 pages) and combine all content for analysis.</p>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Website URL *</Label>
