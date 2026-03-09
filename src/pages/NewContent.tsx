@@ -294,7 +294,7 @@ export default function NewContent() {
                 disabled={loading || !webUrl.trim()}
                 className="w-full bg-gradient-primary hover:opacity-90 transition-opacity glow-primary"
               >
-                {loading ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Scraping page...</>) : (<>Scrape Content <ArrowRight className="ml-2 h-4 w-4" /></>)}
+                {loading ? (<><Loader2 className="h-4 w-4 animate-spin mr-2" />Crawling all pages...</>) : (<>Crawl All Pages <ArrowRight className="ml-2 h-4 w-4" /></>)}
               </Button>
             </div>
           </TabsContent>
