@@ -117,8 +117,9 @@ export default function NewContent() {
       return;
     }
     setLoading(true);
+    let source: Awaited<ReturnType<typeof createSource>> | undefined;
     try {
-      const source = await createSource({
+      source = await createSource({
         title: 'Website Import',
         source_type: 'website',
         source_url: webUrl,
@@ -127,13 +128,17 @@ export default function NewContent() {
       const { data, error } = await supabase.functions.invoke('scrape-website', {
         body: { url: webUrl, contentId: source!.id },
       });
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (error) throw new Error(error.message || 'Scrape failed');
+      if (data?.error) throw new Error(data.error);
 
       toast({ title: 'Page scraped!', description: 'Analyzing your content...' });
       navigate(`/analyze/${source!.id}`);
     } catch (err: unknown) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to scrape website', variant: 'destructive' });
+      // Clean up the orphaned source record if scrape failed
+      if (source?.id) {
+        await supabase.from('content_sources').delete().eq('id', source.id);
+      }
+      toast({ title: 'Failed to scrape website', description: err instanceof Error ? err.message : 'Please try another URL', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
