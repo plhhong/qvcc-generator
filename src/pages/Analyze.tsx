@@ -163,17 +163,43 @@ export default function AnalyzePage() {
             <h1 className="text-2xl font-bold text-foreground">Content Analysis</h1>
             <p className="mt-1 text-sm text-muted-foreground truncate max-w-md">{source?.title}</p>
           </div>
-          {!analyzing && signals && (
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => runAnalysis()} className="border-border">
-                <RefreshCw className="mr-2 h-4 w-4" /> Re-analyze
+          <div className="flex gap-2">
+            {source && (
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="border-border">
+                <Pencil className="mr-2 h-4 w-4" /> Edit Source
               </Button>
-              <Button onClick={saveAndProceed} className="bg-gradient-primary hover:opacity-90 glow-primary">
-                Generate Content <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          )}
+            )}
+            {!analyzing && signals && (
+              <>
+                <Button variant="outline" onClick={() => runAnalysis()} className="border-border">
+                  <RefreshCw className="mr-2 h-4 w-4" /> Re-analyze
+                </Button>
+                <Button onClick={saveAndProceed} className="bg-gradient-primary hover:opacity-90 glow-primary">
+                  Generate Content <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
+
+        {source && (
+          <EditSourceDialog
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            source={source}
+            onReprocessed={(updated) => {
+              setSource(updated);
+              setSignals(null);
+              setThemes([]);
+              setQuotes([]);
+              setInsights([]);
+              setAudienceType('');
+              setTone('');
+              setSummary('');
+              runAnalysis(updated);
+            }}
+          />
+        )}
 
         {analyzing ? (
           <div className="rounded-xl border border-border bg-card p-12 text-center">
