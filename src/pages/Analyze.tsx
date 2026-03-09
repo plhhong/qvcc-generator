@@ -66,6 +66,16 @@ export default function AnalyzePage() {
   const runAnalysis = async (src?: ContentSource) => {
     const s = src || source;
     if (!s || !user) return;
+
+    if (!s.raw_text) {
+      toast({
+        title: 'No content to analyze',
+        description: 'This source has no extracted text. Please go back and re-import it.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setAnalyzing(true);
     try {
       await supabase.from('content_sources').update({ status: 'analyzing' }).eq('id', s.id);
@@ -73,7 +83,7 @@ export default function AnalyzePage() {
       const { data, error } = await supabase.functions.invoke('analyze-content', {
         body: { contentId: s.id, text: s.raw_text },
       });
-      if (error) throw error;
+      if (error) throw new Error(error.message || 'Edge function error');;
       if (data.error) throw new Error(data.error);
 
       const result = data.signals;
