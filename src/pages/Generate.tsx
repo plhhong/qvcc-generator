@@ -168,7 +168,6 @@ export default function GeneratePage() {
     );
   }
 
-  const [signalsExpanded, setSignalsExpanded] = useState(false);
 
   return (
     <AppLayout>
