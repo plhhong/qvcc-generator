@@ -1,0 +1,1 @@
+ALTER TABLE public.content_signals ADD CONSTRAINT content_signals_content_id_key UNIQUE (content_id);
