@@ -133,7 +133,7 @@ export default function NewContent() {
       if (error) throw new Error(error.message || 'Scrape failed');
       if (data?.error) throw new Error(data.error);
 
-      toast({ title: 'Page scraped!', description: 'Analyzing your content...' });
+      toast({ title: 'Website crawled!', description: 'Analyzing all page content...' });
       navigate(`/analyze/${source!.id}`);
     } catch (err: unknown) {
       // Clean up the orphaned source record if scrape failed
