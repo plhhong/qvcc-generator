@@ -179,17 +179,42 @@ export default function GeneratePage() {
             <h1 className="text-2xl font-bold text-foreground">Generate Content</h1>
             <p className="mt-1 text-sm text-muted-foreground truncate max-w-lg">{source?.title}</p>
           </div>
-          {signals && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/analyze/${id}`)}
-              className="border-border text-xs gap-1.5 shrink-0"
-            >
-              View Analysis <ChevronRight className="h-3 w-3" />
-            </Button>
-          )}
+          <div className="flex gap-2 shrink-0">
+            {source && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditOpen(true)}
+                className="border-border text-xs gap-1.5"
+              >
+                <Pencil className="h-3 w-3" /> Edit Source
+              </Button>
+            )}
+            {signals && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/analyze/${id}`)}
+                className="border-border text-xs gap-1.5"
+              >
+                View Analysis <ChevronRight className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
         </div>
+
+        {source && (
+          <EditSourceDialog
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            source={source}
+            onReprocessed={(updated) => {
+              setSource(updated);
+              setSignals(null);
+              navigate(`/analyze/${id}`);
+            }}
+          />
+        )}
 
         {/* Analysis signals summary */}
         {signals && (
