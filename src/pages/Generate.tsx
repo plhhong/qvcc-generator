@@ -167,13 +167,135 @@ export default function GeneratePage() {
     );
   }
 
+  const [signalsExpanded, setSignalsExpanded] = useState(false);
+
   return (
     <AppLayout>
       <div className="p-6 max-w-6xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Generate Content</h1>
-          <p className="mt-1 text-sm text-muted-foreground truncate max-w-lg">{source?.title}</p>
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Generate Content</h1>
+            <p className="mt-1 text-sm text-muted-foreground truncate max-w-lg">{source?.title}</p>
+          </div>
+          {signals && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/analyze/${id}`)}
+              className="border-border text-xs gap-1.5 shrink-0"
+            >
+              View Analysis <ChevronRight className="h-3 w-3" />
+            </Button>
+          )}
         </div>
+
+        {/* Analysis signals summary */}
+        {signals && (
+          <div className="mb-6 rounded-xl border border-border bg-card overflow-hidden">
+            <button
+              onClick={() => setSignalsExpanded(!signalsExpanded)}
+              className="flex w-full items-center justify-between px-5 py-3 hover:bg-surface-3 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">Content Analysis</span>
+                {signals.tone && (
+                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
+                    {signals.tone}
+                  </Badge>
+                )}
+              </div>
+              {signalsExpanded ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+
+            {signalsExpanded && (
+              <div className="px-5 pb-5 border-t border-border space-y-4 pt-4">
+                {signals.summary && (
+                  <p className="text-sm text-muted-foreground leading-relaxed">{signals.summary}</p>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  {signals.audience_type && (
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Users className="h-3.5 w-3.5 text-info" />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Audience</span>
+                      </div>
+                      <p className="text-sm text-foreground">{signals.audience_type}</p>
+                    </div>
+                  )}
+                  {signals.themes && signals.themes.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Tag className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Themes</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {signals.themes.map((t, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
+                            {t}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {signals.key_insights && signals.key_insights.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Lightbulb className="h-3.5 w-3.5 text-success" />
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Key Insights</span>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {signals.key_insights.map((insight, i) => (
+                        <li key={i} className="flex gap-2 text-sm text-muted-foreground">
+                          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-success/15 text-xs font-bold text-success mt-0.5">
+                            {i + 1}
+                          </span>
+                          {insight}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {signals.key_quotes && signals.key_quotes.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Quote className="h-3.5 w-3.5 text-secondary" />
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Key Quotes</span>
+                    </div>
+                    <div className="space-y-2">
+                      {signals.key_quotes.map((q, i) => (
+                        <p key={i} className="text-sm text-foreground italic border-l-2 border-secondary pl-3">"{q}"</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!signalsExpanded && (
+              <div className="px-5 pb-3 flex flex-wrap gap-1.5">
+                {signals.themes?.slice(0, 4).map((t, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs bg-surface-3 text-muted-foreground border-border">
+                    {t}
+                  </Badge>
+                ))}
+                {signals.audience_type && (
+                  <Badge variant="secondary" className="text-xs bg-info/10 text-info border-info/20 gap-1">
+                    <Users className="h-3 w-3" />{signals.audience_type.split(',')[0].trim()}
+                  </Badge>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           {/* Left: Config panel */}
