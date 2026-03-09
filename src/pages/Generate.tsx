@@ -47,6 +47,7 @@ export default function GeneratePage() {
   const [expandedPlatform, setExpandedPlatform] = useState<string | null>(null);
   const [signalsExpanded, setSignalsExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
