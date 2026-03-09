@@ -87,25 +87,27 @@ export default function NewContent() {
       return;
     }
     setLoading(true);
+    let source: Awaited<ReturnType<typeof createSource>> | undefined;
     try {
-      // Create source first, then fetch transcript via edge function
-      const source = await createSource({
+      source = await createSource({
         title: 'YouTube Import',
         source_type: 'youtube',
         source_url: ytUrl,
       });
 
-      // Fetch transcript
       const { data, error } = await supabase.functions.invoke('youtube-transcript', {
         body: { url: ytUrl, contentId: source!.id },
       });
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (error) throw new Error(error.message || 'Transcript fetch failed');
+      if (data?.error) throw new Error(data.error);
 
       toast({ title: 'Transcript fetched!', description: 'Analyzing your content...' });
       navigate(`/analyze/${source!.id}`);
     } catch (err: unknown) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to fetch transcript', variant: 'destructive' });
+      if (source?.id) {
+        await supabase.from('content_sources').delete().eq('id', source.id);
+      }
+      toast({ title: 'Failed to fetch transcript', description: err instanceof Error ? err.message : 'Please try another URL', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
