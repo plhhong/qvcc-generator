@@ -9,7 +9,7 @@ import {
   Globe, Upload, Sparkles, Linkedin, Twitter, BookOpen, Video, Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ContentSource, GeneratedPost } from '@/integrations/supabase/types';
+import type { ContentSource, GeneratedPost } from '@/integrations/supabase/helpers';
 
 const platformConfig = {
   linkedin: { icon: Linkedin, color: 'text-platform-linkedin', bg: 'bg-platform-linkedin/10', label: 'LinkedIn' },

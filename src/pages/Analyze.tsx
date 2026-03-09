@@ -12,7 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { ContentSource, ContentSignal } from '@/integrations/supabase/types';
+import type { ContentSource, ContentSignal } from '@/integrations/supabase/helpers';
 
 export default function AnalyzePage() {
   const { id } = useParams<{ id: string }>();
