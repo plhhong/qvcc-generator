@@ -53,6 +53,7 @@ export type Database = {
           content_goals: string | null
           created_at: string
           id: string
+          is_active: boolean
           is_default: boolean
           name: string
           style_notes: string | null
@@ -66,6 +67,7 @@ export type Database = {
           content_goals?: string | null
           created_at?: string
           id?: string
+          is_active?: boolean
           is_default?: boolean
           name: string
           style_notes?: string | null
@@ -79,6 +81,7 @@ export type Database = {
           content_goals?: string | null
           created_at?: string
           id?: string
+          is_active?: boolean
           is_default?: boolean
           name?: string
           style_notes?: string | null

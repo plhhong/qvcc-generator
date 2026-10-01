@@ -15,6 +15,13 @@
       "when": 1790866934829,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790867179088,
+      "tag": "0002_brand_voice_profiles_add_is_active",
+      "breakpoints": true
     }
   ]
 }

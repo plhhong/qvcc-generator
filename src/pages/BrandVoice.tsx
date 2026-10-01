@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Plus, Edit2, Trash2, Check, X, Star, Mic2,
+  Plus, Edit2, Trash2, Check, X, Star, Mic2, Power,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BrandVoiceProfile } from '@/integrations/supabase/helpers';
@@ -117,6 +117,52 @@ export default function BrandVoicePage() {
     fetchProfiles();
   };
 
+  const toggleActive = async (profile: BrandVoiceProfile) => {
+    const nextActive = !profile.is_active;
+
+    if (!nextActive && profile.is_default) {
+      // Disabling the default: clear it first (the one-default-per-user unique
+      // index rejects a second default), then promote the most recently
+      // updated active profile.
+      const { error: deactivateError } = await supabase
+        .from('brand_voice_profiles')
+        .update({ is_default: false, is_active: false })
+        .eq('id', profile.id);
+      if (deactivateError) {
+        toast({ title: 'Could not disable profile', description: deactivateError.message, variant: 'destructive' });
+        fetchProfiles();
+        return;
+      }
+      const candidate = [...profiles]
+        .filter((p) => p.id !== profile.id && p.is_active)
+        .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))[0];
+      if (candidate) {
+        const { error: promoteError } = await supabase
+          .from('brand_voice_profiles')
+          .update({ is_default: true })
+          .eq('id', candidate.id);
+        if (promoteError) {
+          toast({ title: 'Could not promote new default', description: promoteError.message, variant: 'destructive' });
+        } else {
+          toast({ title: `Disabled — "${candidate.name}" is now the default` });
+        }
+      } else {
+        toast({ title: 'Profile disabled' });
+      }
+    } else {
+      const { error } = await supabase
+        .from('brand_voice_profiles')
+        .update({ is_active: nextActive })
+        .eq('id', profile.id);
+      if (error) {
+        toast({ title: 'Could not update profile', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: nextActive ? 'Profile enabled' : 'Profile disabled' });
+      }
+    }
+    fetchProfiles();
+  };
+
   const addVocab = () => {
     if (vocabInput.trim()) {
       setVocabulary([...vocabulary, vocabInput.trim()]);
@@ -157,11 +203,17 @@ export default function BrandVoicePage() {
             {profiles.map((profile) => (
               <div key={profile.id} className={cn(
                 'rounded-xl border bg-card p-5 space-y-3 relative transition-all',
-                profile.is_default ? 'border-primary/40' : 'border-border hover:border-primary/20'
+                profile.is_default ? 'border-primary/40' : 'border-border hover:border-primary/20',
+                !profile.is_active && 'opacity-60'
               )}>
                 {profile.is_default && (
                   <div className="absolute top-3 right-3">
                     <Badge className="bg-primary/15 text-primary border-primary/30 text-xs">Default</Badge>
+                  </div>
+                )}
+                {!profile.is_active && (
+                  <div className="absolute top-3 right-3">
+                    <Badge variant="secondary" className="text-xs">Disabled</Badge>
                   </div>
                 )}
                 <div className="flex items-start gap-3 pr-16">
@@ -198,12 +250,21 @@ export default function BrandVoicePage() {
                 )}
 
                 <div className="flex items-center gap-2 pt-1 border-t border-border">
-                  {!profile.is_default && (
+                  {profile.is_active && !profile.is_default && (
                     <Button variant="ghost" size="sm" onClick={() => setDefault(profile.id)} className="h-7 text-xs text-muted-foreground hover:text-foreground">
                       <Star className="mr-1 h-3 w-3" /> Set default
                     </Button>
                   )}
                   <div className="ml-auto flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={profile.is_active ? 'Disable profile' : 'Enable profile'}
+                      className={cn('h-7 w-7 hover:text-foreground', profile.is_active ? 'text-muted-foreground' : 'text-destructive')}
+                      onClick={() => toggleActive(profile)}
+                    >
+                      <Power className="h-3.5 w-3.5" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => openEdit(profile)}>
                       <Edit2 className="h-3.5 w-3.5" />
                     </Button>
