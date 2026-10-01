@@ -192,11 +192,17 @@ export default function BrandVoicePage() {
             {profiles.map((profile) => (
               <div key={profile.id} className={cn(
                 'rounded-xl border bg-card p-5 space-y-3 relative transition-all',
-                profile.is_default ? 'border-primary/40' : 'border-border hover:border-primary/20'
+                profile.is_default ? 'border-primary/40' : 'border-border hover:border-primary/20',
+                !profile.is_active && 'opacity-60'
               )}>
                 {profile.is_default && (
                   <div className="absolute top-3 right-3">
                     <Badge className="bg-primary/15 text-primary border-primary/30 text-xs">Default</Badge>
+                  </div>
+                )}
+                {!profile.is_active && (
+                  <div className="absolute top-3 right-3">
+                    <Badge variant="secondary" className="text-xs">Disabled</Badge>
                   </div>
                 )}
                 <div className="flex items-start gap-3 pr-16">
@@ -233,12 +239,21 @@ export default function BrandVoicePage() {
                 )}
 
                 <div className="flex items-center gap-2 pt-1 border-t border-border">
-                  {!profile.is_default && (
+                  {profile.is_active && !profile.is_default && (
                     <Button variant="ghost" size="sm" onClick={() => setDefault(profile.id)} className="h-7 text-xs text-muted-foreground hover:text-foreground">
                       <Star className="mr-1 h-3 w-3" /> Set default
                     </Button>
                   )}
                   <div className="ml-auto flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={profile.is_active ? 'Disable profile' : 'Enable profile'}
+                      className={cn('h-7 w-7 hover:text-foreground', profile.is_active ? 'text-muted-foreground' : 'text-destructive')}
+                      onClick={() => toggleActive(profile)}
+                    >
+                      <Power className="h-3.5 w-3.5" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={() => openEdit(profile)}>
                       <Edit2 className="h-3.5 w-3.5" />
                     </Button>
