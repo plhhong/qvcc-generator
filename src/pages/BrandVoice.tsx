@@ -101,8 +101,19 @@ export default function BrandVoicePage() {
   };
 
   const setDefault = async (id: string) => {
-    await supabase.from('brand_voice_profiles').update({ is_default: false }).neq('id', 'none');
-    await supabase.from('brand_voice_profiles').update({ is_default: true }).eq('id', id);
+    const { error: clearError } = await supabase
+      .from('brand_voice_profiles')
+      .update({ is_default: false })
+      .eq('user_id', user!.id)
+      .neq('id', id);
+    const { error: setError } = clearError
+      ? { error: clearError }
+      : await supabase.from('brand_voice_profiles').update({ is_default: true }).eq('id', id);
+    if (setError) {
+      toast({ title: 'Could not set default', description: setError.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Default profile updated' });
+    }
     fetchProfiles();
   };
 
