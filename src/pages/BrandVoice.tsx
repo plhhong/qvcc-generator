@@ -121,23 +121,34 @@ export default function BrandVoicePage() {
     const nextActive = !profile.is_active;
 
     if (!nextActive && profile.is_default) {
-      // Disabling the default: promote the most recently updated active profile
+      // Disabling the default: clear it first (the one-default-per-user unique
+      // index rejects a second default), then promote the most recently
+      // updated active profile.
+      const { error: deactivateError } = await supabase
+        .from('brand_voice_profiles')
+        .update({ is_default: false, is_active: false })
+        .eq('id', profile.id);
+      if (deactivateError) {
+        toast({ title: 'Could not disable profile', description: deactivateError.message, variant: 'destructive' });
+        fetchProfiles();
+        return;
+      }
       const candidate = [...profiles]
         .filter((p) => p.id !== profile.id && p.is_active)
         .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))[0];
       if (candidate) {
-        await supabase.from('brand_voice_profiles').update({ is_default: true }).eq('id', candidate.id);
+        const { error: promoteError } = await supabase
+          .from('brand_voice_profiles')
+          .update({ is_default: true })
+          .eq('id', candidate.id);
+        if (promoteError) {
+          toast({ title: 'Could not promote new default', description: promoteError.message, variant: 'destructive' });
+        } else {
+          toast({ title: `Disabled — "${candidate.name}" is now the default` });
+        }
+      } else {
+        toast({ title: 'Profile disabled' });
       }
-      const { error } = await supabase
-        .from('brand_voice_profiles')
-        .update({ is_default: false, is_active: false })
-        .eq('id', profile.id);
-      if (error) {
-        toast({ title: 'Could not disable profile', description: error.message, variant: 'destructive' });
-        fetchProfiles();
-        return;
-      }
-      toast({ title: candidate ? `Disabled — "${candidate.name}" is now the default` : 'Profile disabled' });
     } else {
       const { error } = await supabase
         .from('brand_voice_profiles')
