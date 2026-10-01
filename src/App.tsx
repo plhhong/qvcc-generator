@@ -14,6 +14,8 @@ import EditorPage from "./pages/Editor";
 import LibraryPage from "./pages/Library";
 import BrandVoicePage from "./pages/BrandVoice";
 import NotFound from "./pages/NotFound";
+import { AdminUsersPage } from "./pages/AdminUsers";
+import { AdminRoute } from "@/features/admin/admin-route";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,7 @@ const App = () => (
             <Route path="/editor/:postId" element={<ProtectedRoute><EditorPage /></ProtectedRoute>} />
             <Route path="/library" element={<ProtectedRoute><LibraryPage /></ProtectedRoute>} />
             <Route path="/brand-voice" element={<ProtectedRoute><BrandVoicePage /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<AdminRoute><AdminUsersPage /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

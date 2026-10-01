@@ -1,12 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-  LayoutDashboard, Plus, Library, Mic2, Settings, Zap, LogOut, ChevronRight,
+  LayoutDashboard, Plus, Library, Mic2, Settings, Zap, LogOut, ChevronRight, ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useIsAdmin } from '@/features/admin/use-admin';
 
-const navItems = [
+const baseNavItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/new', icon: Plus, label: 'New Content' },
   { to: '/library', icon: Library, label: 'Library' },
@@ -16,6 +17,10 @@ const navItems = [
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, signOut } = useAuth();
   const location = useLocation();
+  const { data: isAdmin } = useIsAdmin();
+  const navItems = isAdmin
+    ? [...baseNavItems, { to: '/admin/users', icon: ShieldCheck, label: 'Admin' }]
+    : baseNavItems;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
