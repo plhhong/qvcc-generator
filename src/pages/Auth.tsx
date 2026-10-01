@@ -69,7 +69,7 @@ export default function AuthPage() {
             <Zap className="h-6 w-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold gradient-text">Content Repurposer AI</h1>
+            <h1 className="text-2xl font-bold gradient-text">QVCC Generator</h1>
             <p className="mt-1 text-sm text-muted-foreground">Turn one idea into ten distribution assets</p>
           </div>
         </div>
