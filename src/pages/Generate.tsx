@@ -55,7 +55,7 @@ export default function GeneratePage() {
       const [sourceRes, signalRes, voicesRes, postsRes] = await Promise.all([
         supabase.from('content_sources').select('*').eq('id', id).single(),
         supabase.from('content_signals').select('*').eq('content_id', id).maybeSingle(),
-        supabase.from('brand_voice_profiles').select('*').order('is_default', { ascending: false }),
+        supabase.from('brand_voice_profiles').select('*').eq('is_active', true).order('is_default', { ascending: false }),
         supabase.from('generated_posts').select('*').eq('content_id', id).order('created_at', { ascending: false }),
       ]);
       if (sourceRes.data) setSource(sourceRes.data);
