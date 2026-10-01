@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  Plus, Edit2, Trash2, Check, X, Star, Mic2,
+  Plus, Edit2, Trash2, Check, X, Star, Mic2, Power,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BrandVoiceProfile } from '@/integrations/supabase/helpers';
@@ -113,6 +113,41 @@ export default function BrandVoicePage() {
       toast({ title: 'Could not set default', description: setError.message, variant: 'destructive' });
     } else {
       toast({ title: 'Default profile updated' });
+    }
+    fetchProfiles();
+  };
+
+  const toggleActive = async (profile: BrandVoiceProfile) => {
+    const nextActive = !profile.is_active;
+
+    if (!nextActive && profile.is_default) {
+      // Disabling the default: promote the most recently updated active profile
+      const candidate = [...profiles]
+        .filter((p) => p.id !== profile.id && p.is_active)
+        .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))[0];
+      if (candidate) {
+        await supabase.from('brand_voice_profiles').update({ is_default: true }).eq('id', candidate.id);
+      }
+      const { error } = await supabase
+        .from('brand_voice_profiles')
+        .update({ is_default: false, is_active: false })
+        .eq('id', profile.id);
+      if (error) {
+        toast({ title: 'Could not disable profile', description: error.message, variant: 'destructive' });
+        fetchProfiles();
+        return;
+      }
+      toast({ title: candidate ? `Disabled — "${candidate.name}" is now the default` : 'Profile disabled' });
+    } else {
+      const { error } = await supabase
+        .from('brand_voice_profiles')
+        .update({ is_active: nextActive })
+        .eq('id', profile.id);
+      if (error) {
+        toast({ title: 'Could not update profile', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: nextActive ? 'Profile enabled' : 'Profile disabled' });
+      }
     }
     fetchProfiles();
   };
