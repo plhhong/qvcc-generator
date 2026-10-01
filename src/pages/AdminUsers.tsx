@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Pencil, Trash2, Ban, CheckCircle2, UserPlus, Search } from 'lucide-react';
+import { Pencil, Trash2, Ban, CheckCircle2, UserPlus, Search, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { AppLayout } from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -14,6 +16,46 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAdminAction, useAdminUsers } from '@/features/admin/use-admin';
 import { UserFormDialog } from '@/features/admin/user-form-dialog';
 import type { AdminUser } from '@/features/admin/admin-service';
+
+const SetPasswordDialog = ({ user, onClose }: { user: AdminUser | null; onClose: () => void }) => {
+  const action = useAdminAction();
+  const [password, setPassword] = useState('');
+  const [show, setShow] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    if (!user) return;
+    if (password.length < 8) { setError('Use at least 8 characters'); return; }
+    await action.mutateAsync({ action: 'reset_password', user_id: user.id, password });
+    setPassword('');
+    onClose();
+  };
+
+  return (
+    <Dialog open={!!user} onOpenChange={(o) => { if (!o) { setPassword(''); setError(null); onClose(); } }}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Set password for {user?.email}</DialogTitle></DialogHeader>
+        <div className="space-y-1.5">
+          <Label htmlFor="new-password">New password</Label>
+          <div className="relative">
+            <Input id="new-password" type={show ? 'text' : 'password'} autoComplete="new-password" className="pr-10"
+              value={password} onChange={(e) => { setPassword(e.target.value); setError(null); }} />
+            <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full px-3"
+              aria-label={show ? 'Hide password' : 'Show password'} onClick={() => setShow((s) => !s)}>
+              {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+          </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
+          <p className="text-xs text-muted-foreground">Existing passwords can't be viewed — they're stored securely as hashes. Setting a new one takes effect immediately.</p>
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={submit} disabled={action.isPending || !password}>Set password</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const fmt = (d: string | null) =>
   d ? new Date(d).toLocaleDateString('en-CA', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Never';
