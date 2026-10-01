@@ -62,7 +62,7 @@ export default function GeneratePage() {
       if (signalRes.data) setSignals(signalRes.data);
       if (voicesRes.data) {
         setBrandVoices(voicesRes.data);
-        const def = voicesRes.data.find((v) => v.is_default);
+        const def = voicesRes.data.find((v) => v.is_default) || voicesRes.data[0];
         if (def) setSelectedVoiceId(def.id);
       }
       if (postsRes.data) {
