@@ -69,6 +69,7 @@ export const AdminUsersPage = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AdminUser | null>(null);
   const [deleting, setDeleting] = useState<AdminUser | null>(null);
+  const [pwUser, setPwUser] = useState<AdminUser | null>(null);
 
   const filtered = useMemo(() => users.filter((u) =>
     (role === 'all' || u.role === role) &&
@@ -134,6 +135,7 @@ export const AdminUsersPage = () => {
                     <TableCell>{fmt(u.last_sign_in_at)}</TableCell>
                     <TableCell className="text-right whitespace-nowrap">
                       <Button variant="ghost" size="icon" aria-label="Edit user" onClick={() => openForm(u)}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" aria-label="Set password" onClick={() => setPwUser(u)}><KeyRound className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="icon" disabled={isMe} aria-label={u.suspended ? 'Reactivate user' : 'Suspend user'}
                         onClick={() => action.mutate({ action: 'suspend', user_id: u.id, suspended: !u.suspended })}>
                         {u.suspended ? <CheckCircle2 className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
@@ -151,6 +153,7 @@ export const AdminUsersPage = () => {
       </div>
 
       <UserFormDialog open={formOpen} onOpenChange={setFormOpen} user={editing} />
+      <SetPasswordDialog user={pwUser} onClose={() => setPwUser(null)} />
 
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <AlertDialogContent>
