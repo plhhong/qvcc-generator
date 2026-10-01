@@ -27,7 +27,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
             <Zap className="h-4 w-4 text-primary-foreground" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-bold text-foreground truncate">Repurposer AI</p>
+            <p className="text-sm font-bold text-foreground truncate">QVCC Generator</p>
             <p className="text-xs text-muted-foreground truncate">Content Studio</p>
           </div>
         </div>
